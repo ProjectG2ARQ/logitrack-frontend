@@ -1,0 +1,58 @@
+.dashboard-toolbar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.dashboard-container {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-card {
+  padding: 1rem;
+}
+
+.form-grid {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.data-table th, .data-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+}
+
+.assign-action {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.select-assign {
+  width: 250px;
+  margin-bottom: -1.25em;
+}
+
+.empty-state {
+  padding: 1.5rem;
+  text-align: center;
+  color: #777;
+}

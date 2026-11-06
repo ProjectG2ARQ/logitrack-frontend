@@ -1,0 +1,81 @@
+<mat-toolbar color="primary" class="dashboard-toolbar">
+  <span>LogiTrack - Portal Administrativo</span>
+  <span class="toolbar-spacer"></span>
+  <button mat-button (click)="logout()">
+    <mat-icon>logout</mat-icon> Cerrar Sesión
+  </button>
+</mat-toolbar>
+
+<div class="dashboard-container">
+  <!-- Tarjeta: Registrar Repartidor -->
+  <mat-card class="dashboard-card">
+    <mat-card-header>
+      <mat-card-title>Registrar Nuevo Repartidor</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="repartidorForm" (ngSubmit)="crearRepartidor()" class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre Completo</mat-label>
+          <input matInput formControlName="nombre" placeholder="Ej: Marcos Diaz" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de Vehículo</mat-label>
+          <mat-select formControlName="tipoVehiculo">
+            <mat-option value="MOTO">Moto</mat-option>
+            <mat-option value="UTILITARIO">Utilitario</mat-option>
+            <mat-option value="FURGONETA">Furgoneta</mat-option>
+            <mat-option value="BICICLETA">Bicicleta</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="repartidorForm.invalid">
+          <mat-icon>person_add</mat-icon> Registrar
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tarjeta: Asignar Envíos Pendientes -->
+  <mat-card class="dashboard-card">
+    <mat-card-header>
+      <mat-card-title>Envíos Pendientes de Asignación</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div *ngIf="enviosPendientes.length === 0" class="empty-state">
+        No hay envíos pendientes por asignar.
+      </div>
+      <table *ngIf="enviosPendientes.length > 0" class="data-table">
+        <thead>
+        <tr>
+          <th>Tracking</th>
+          <th>Destino</th>
+          <th>Tarifa</th>
+          <th>Asignar Repartidor</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let envio of enviosPendientes">
+          <td><strong>{{ envio.codigoSeguimiento }}</strong></td>
+          <td>{{ envio.destino.ciudad }} ({{ envio.destino.calle }} {{ envio.destino.numero }})</td>
+          <td>${{ envio.tarifa }}</td>
+          <td>
+            <div class="assign-action">
+              <mat-form-field appearance="outline" density="compact" class="select-assign">
+                <mat-select #repSelect placeholder="Seleccionar activo">
+                  <mat-option *ngFor="let rep of repartidoresActivos" [value]="rep.id">
+                    {{ rep.nombre }} ({{ rep.tipoVehiculo }})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <button mat-flat-button color="accent" (click)="asignar(envio.id, repSelect.value)" [disabled]="!repSelect.value">
+                Asignar
+              </button>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>
