@@ -1,9 +1,9 @@
-# Etapa 1: Build de la aplicación Angular
-FROM node:20-alpine AS build
+# Etapa 1: Build de la aplicación Angular con Node 26
+FROM node:26-alpine AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 COPY . .
 RUN npm run build -- --configuration production
@@ -14,7 +14,7 @@ FROM nginx:alpine
 # Copia los archivos estáticos generados por el build
 COPY --from=build /app/dist/logitrack-frontend/browser /usr/share/nginx/html
 
-# Configuración de Nginx para soportar enrutamiento de SPA (evita errores 404 al recargar)
+# Configuración de Nginx para soportar enrutamiento de SPA
 RUN echo 'server { \
     listen 80; \
     location / { \
