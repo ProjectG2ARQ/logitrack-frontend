@@ -19,8 +19,14 @@ export class DashboardComponent implements OnInit {
   private router = inject(Router);
 
   repartidores: Repartidor[] = [];
-  enviosPendientes: Envio[] = [];
   repartidoresActivos: Repartidor[] = [];
+
+  // Tarjeta de Asignación directa
+  enviosPendientes: Envio[] = [];
+
+  // Tarjeta de Monitoreo / Consulta general
+  envios: Envio[] = [];
+  estadoSeleccionado: string = 'PENDIENTE';
 
   repartidorForm: FormGroup = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
@@ -35,23 +41,37 @@ export class DashboardComponent implements OnInit {
   }
 
   cargarDatos(): void {
-    this.isLoading = true;
+    this.cargarRepartidores();
+    this.cargarPendientes();
+    this.filtrarEnvios(this.estadoSeleccionado);
+  }
+
+  cargarRepartidores(): void {
     this.adminService.obtenerRepartidores().subscribe({
       next: (data) => {
         this.repartidores = data;
         this.repartidoresActivos = data.filter((r) => r.estado === 'ACTIVO');
-        this.isLoading = false;
       },
-      error: () => {
-        this.isLoading = false;
-        this.snackBar.open('Error al cargar repartidores', 'Cerrar', { duration: 3000 });
-      },
+      error: () => this.snackBar.open('Error al cargar repartidores', 'Cerrar', { duration: 3000 }),
     });
+  }
 
+  cargarPendientes(): void {
     this.adminService.obtenerEnviosPendientes().subscribe({
       next: (data) => (this.enviosPendientes = data),
       error: () =>
         this.snackBar.open('Error al cargar envíos pendientes', 'Cerrar', { duration: 3000 }),
+    });
+  }
+
+  filtrarEnvios(estado: string): void {
+    this.estadoSeleccionado = estado;
+    this.adminService.obtenerEnviosPorEstado(estado).subscribe({
+      next: (data) => (this.envios = data),
+      error: () =>
+        this.snackBar.open(`Error al cargar envíos con estado ${estado}`, 'Cerrar', {
+          duration: 3000,
+        }),
     });
   }
 
@@ -62,7 +82,7 @@ export class DashboardComponent implements OnInit {
       next: () => {
         this.snackBar.open('Repartidor registrado con éxito', 'Cerrar', { duration: 3000 });
         this.repartidorForm.reset({ tipoVehiculo: 'FURGONETA', estado: 'ACTIVO' });
-        this.cargarDatos();
+        this.cargarRepartidores();
       },
       error: (err) => {
         const msg = err.error?.message || 'Error al registrar repartidor';
@@ -77,10 +97,45 @@ export class DashboardComponent implements OnInit {
     this.adminService.asignarRepartidor(envioId, repartidorId).subscribe({
       next: () => {
         this.snackBar.open('Repartidor asignado correctamente', 'Cerrar', { duration: 3000 });
-        this.cargarDatos();
+        this.cargarPendientes();
+        this.filtrarEnvios(this.estadoSeleccionado);
       },
       error: (err) => {
         const msg = err.error?.message || 'Error al asignar repartidor';
+        this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  toggleEstadoRepartidor(rep: Repartidor): void {
+    const nuevoEstado = rep.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+    if (!rep.id) return;
+
+    this.adminService
+      .actualizarEstadoRepartidor(rep.id, nuevoEstado, rep.nombre, rep.tipoVehiculo)
+      .subscribe({
+        next: () => {
+          this.snackBar.open(`Repartidor ${rep.nombre} ahora está ${nuevoEstado}`, 'Cerrar', {
+            duration: 3000,
+          });
+          this.cargarRepartidores();
+        },
+        error: (err) => {
+          const msg = err.error?.message || 'Error al actualizar estado';
+          this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+        },
+      });
+  }
+
+  cancelar(envioId: string): void {
+    this.adminService.cancelarEnvio(envioId).subscribe({
+      next: () => {
+        this.snackBar.open('Envío cancelado con éxito', 'Cerrar', { duration: 3000 });
+        this.cargarPendientes();
+        this.filtrarEnvios(this.estadoSeleccionado);
+      },
+      error: (err) => {
+        const msg = err.error?.message || 'No se pudo cancelar el envío';
         this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
       },
     });

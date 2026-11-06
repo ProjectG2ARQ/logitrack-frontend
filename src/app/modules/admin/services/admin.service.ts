@@ -51,4 +51,23 @@ export class AdminService {
       {},
     );
   }
+
+  // Cambiar estado de un repartidor (Activar / Desactivar)
+  actualizarEstadoRepartidor(id: string, nuevoEstado: 'ACTIVO' | 'INACTIVO', nombre: string, tipoVehiculo: string): Observable<Repartidor> {
+    return this.http.patch<Repartidor>(`${this.COURIER_URL}/${id}/estado`, {
+      nombre,
+      tipoVehiculo,
+      estado: nuevoEstado
+    });
+  }
+
+// Obtener envíos filtrados por cualquier estado
+  obtenerEnviosPorEstado(estado: string): Observable<Envio[]> {
+    return this.http.get<Envio[]>(`${this.SHIPMENT_URL}?estado=${estado}`);
+  }
+
+// Cancelar un envío pendiente
+  cancelarEnvio(id: string): Observable<void> {
+    return this.http.post<void>(`${this.SHIPMENT_URL}/${id}/cancelar`, {});
+  }
 }

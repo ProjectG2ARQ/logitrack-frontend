@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth-guard';
+import { roleGuard } from './core/guards/role-guard';
 
 export const routes: Routes = [
   {
@@ -8,17 +8,20 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    canActivate: [authGuard],
+    canActivate: [roleGuard],
+    data: { roles: ['ADMIN'] },
     loadChildren: () => import('./modules/admin/admin-module').then((m) => m.AdminModule),
   },
   {
     path: 'courier',
-    canActivate: [authGuard],
+    canActivate: [roleGuard],
+    data: { roles: ['REPARTIDOR'] },
     loadChildren: () => import('./modules/courier/courier-module').then((m) => m.CourierModule),
   },
   {
     path: 'client',
-    canActivate: [authGuard],
+    canActivate: [roleGuard],
+    data: { roles: ['CLIENTE'] },
     loadChildren: () => import('./modules/client/client-module').then((m) => m.ClientModule),
   },
   {

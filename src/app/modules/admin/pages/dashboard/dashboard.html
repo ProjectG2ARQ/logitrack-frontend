@@ -36,6 +36,41 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- Tarjeta: Directorio de Repartidores -->
+  <mat-card class="dashboard-card">
+    <mat-card-header>
+      <mat-card-title>Directorio de Repartidores Registrados</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table class="data-table">
+        <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Vehículo</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let rep of repartidores">
+          <td>{{ rep.nombre }}</td>
+          <td>{{ rep.tipoVehiculo }}</td>
+          <td>
+              <span [class.badge-activo]="rep.estado === 'ACTIVO'" [class.badge-inactivo]="rep.estado === 'INACTIVO'">
+                {{ rep.estado }}
+              </span>
+          </td>
+          <td>
+            <button mat-stroked-button [color]="rep.estado === 'ACTIVO' ? 'warn' : 'primary'" (click)="toggleEstadoRepartidor(rep)">
+              {{ rep.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }}
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </mat-card-content>
+  </mat-card>
+
   <!-- Tarjeta: Asignar Envíos Pendientes -->
   <mat-card class="dashboard-card">
     <mat-card-header>
@@ -68,10 +103,66 @@
                   </mat-option>
                 </mat-select>
               </mat-form-field>
+
               <button mat-flat-button color="accent" (click)="asignar(envio.id, repSelect.value)" [disabled]="!repSelect.value">
                 Asignar
               </button>
+
+              <button mat-icon-button color="warn" title="Cancelar envío" (click)="cancelar(envio.id)">
+                <mat-icon>cancel</mat-icon>
+              </button>
             </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tarjeta: Monitoreo General de Envíos -->
+  <mat-card class="dashboard-card">
+    <mat-card-header class="card-header-flex">
+      <mat-card-title>Monitoreo General de Envíos</mat-card-title>
+      <div class="filter-container">
+        <mat-form-field appearance="outline" density="compact">
+          <mat-label>Filtrar por Estado</mat-label>
+          <mat-select [value]="estadoSeleccionado" (selectionChange)="filtrarEnvios($event.value)">
+            <mat-option value="PENDIENTE">PENDIENTES</mat-option>
+            <mat-option value="EN_RUTA">EN RUTA</mat-option>
+            <mat-option value="ENTREGADO">ENTREGADOS</mat-option>
+            <mat-option value="CANCELADO">CANCELADOS</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      <div *ngIf="envios.length === 0" class="empty-state">
+        No se encontraron envíos con estado <strong>{{ estadoSeleccionado }}</strong>.
+      </div>
+
+      <table *ngIf="envios.length > 0" class="data-table">
+        <thead>
+        <tr>
+          <th>Tracking</th>
+          <th>Destino</th>
+          <th>Tarifa</th>
+          <th>Estado</th>
+          <th>Repartidor Asignado</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let envio of envios">
+          <td><strong>{{ envio.codigoSeguimiento }}</strong></td>
+          <td>{{ envio.destino.ciudad }} ({{ envio.destino.calle }} {{ envio.destino.numero }})</td>
+          <td>${{ envio.tarifa }}</td>
+          <td>
+              <span class="badge" [ngClass]="'badge-' + envio.estado.toLowerCase()">
+                {{ envio.estado }}
+              </span>
+          </td>
+          <td>
+            <span *ngIf="envio.repartidorId" class="text-muted">Asignado (ID: {{ envio.repartidorId | slice:0:8 }}...)</span>
+            <span *ngIf="!envio.repartidorId" class="text-muted">Sin asignar</span>
           </td>
         </tr>
         </tbody>
