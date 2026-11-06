@@ -1,15 +1,17 @@
 export interface LoginRequest {
-  username: string;
+  email: string;
   password: string;
 }
 
 export interface LoginResponse {
   token: string;
-  username: string;
+  userId: number;
+  email: string;
   rol: string; // 'ADMIN', 'REPARTIDOR' o 'CLIENTE'
 }
 
 export interface UsuarioInfo {
-  username: string;
+  userId: number;
+  email: string;
   rol: string;
 }

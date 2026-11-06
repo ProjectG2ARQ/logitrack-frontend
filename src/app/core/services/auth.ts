@@ -5,14 +5,14 @@ import { Router } from '@angular/router';
 import { LoginRequest, LoginResponse } from '../models/auth';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  // URL centralizada apuntando al API Gateway en el puerto 8066
-  private readonly AUTH_URL = 'http://localhost:8066/applications/api-auth/api/v1/auth';
+  // URL apuntando a la ruta del Gateway hacia security-service
+  private readonly AUTH_URL = 'http://localhost:8066/applications/api-security/api/v1/auth';
   private readonly TOKEN_KEY = 'logitrack_jwt_token';
   private readonly USER_KEY = 'logitrack_user_info';
 
@@ -21,12 +21,16 @@ export class AuthService {
       tap((res) => {
         if (res && res.token) {
           this.setToken(res.token);
-          localStorage.setItem(this.USER_KEY, JSON.stringify({
-            username: res.username,
-            rol: res.rol
-          }));
+          localStorage.setItem(
+            this.USER_KEY,
+            JSON.stringify({
+              userId: res.userId,
+              email: res.email,
+              rol: res.rol,
+            }),
+          );
         }
-      })
+      }),
     );
   }
 
