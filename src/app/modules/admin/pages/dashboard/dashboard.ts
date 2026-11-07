@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { switchMap } from 'rxjs';
 import { AdminService, Repartidor, Envio } from '../../services/admin.service';
 import { AuthService } from '../../../../core/services/auth';
 
@@ -16,25 +16,23 @@ export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
-  private router = inject(Router);
 
   repartidores: Repartidor[] = [];
   repartidoresActivos: Repartidor[] = [];
 
-  // Tarjeta de Asignación directa
   enviosPendientes: Envio[] = [];
-
-  // Tarjeta de Monitoreo / Consulta general
   envios: Envio[] = [];
   estadoSeleccionado: string = 'PENDIENTE';
 
   repartidorForm: FormGroup = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
     tipoVehiculo: ['FURGONETA', [Validators.required]],
     estado: ['ACTIVO', [Validators.required]],
   });
 
-  isLoading = false;
+  isSubmitting = false;
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -75,17 +73,76 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // Creación combinada: 1° Auth -> 2° Courier
   crearRepartidor(): void {
-    if (this.repartidorForm.invalid) return;
+    if (this.repartidorForm.invalid || this.isSubmitting) return;
 
-    this.adminService.registrarRepartidor(this.repartidorForm.value).subscribe({
+    this.isSubmitting = true;
+    const formVal = this.repartidorForm.value;
+
+    this.adminService
+      .registrarUsuarioAuth({
+        email: formVal.email,
+        password: formVal.password,
+        rol: 'REPARTIDOR',
+      })
+      .pipe(
+        switchMap((authRes) =>
+          this.adminService.registrarRepartidor({
+            nombre: formVal.nombre,
+            tipoVehiculo: formVal.tipoVehiculo,
+            estado: formVal.estado,
+            userId: authRes.userId,
+          }),
+        ),
+      )
+      .subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.snackBar.open('Repartidor y credenciales registrados con éxito', 'Cerrar', {
+            duration: 3500,
+          });
+          this.repartidorForm.reset({ tipoVehiculo: 'FURGONETA', estado: 'ACTIVO' });
+          this.cargarRepartidores();
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          const msg = err.error?.message || 'Error en el alta combinada del repartidor';
+          this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+        },
+      });
+  }
+
+  toggleEstadoRepartidor(rep: Repartidor): void {
+    if (!rep.id) return;
+    const nuevoEstado = rep.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+
+    this.adminService
+      .actualizarEstadoRepartidor(rep.id, nuevoEstado, rep.nombre, rep.tipoVehiculo)
+      .subscribe({
+        next: () => {
+          this.snackBar.open(`Estado actualizado a ${nuevoEstado}`, 'Cerrar', { duration: 3000 });
+          this.cargarRepartidores();
+        },
+        error: (err) => {
+          const msg = err.error?.message || 'Error al actualizar estado';
+          this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+        },
+      });
+  }
+
+  eliminarRepartidor(rep: Repartidor): void {
+    if (!rep.id) return;
+
+    this.adminService.eliminarRepartidor(rep.id).subscribe({
       next: () => {
-        this.snackBar.open('Repartidor registrado con éxito', 'Cerrar', { duration: 3000 });
-        this.repartidorForm.reset({ tipoVehiculo: 'FURGONETA', estado: 'ACTIVO' });
+        this.snackBar.open(`Repartidor ${rep.nombre} eliminado (baja lógica)`, 'Cerrar', {
+          duration: 3000,
+        });
         this.cargarRepartidores();
       },
       error: (err) => {
-        const msg = err.error?.message || 'Error al registrar repartidor';
+        const msg = err.error?.message || 'Error al eliminar repartidor';
         this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
       },
     });
@@ -105,26 +162,6 @@ export class DashboardComponent implements OnInit {
         this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
       },
     });
-  }
-
-  toggleEstadoRepartidor(rep: Repartidor): void {
-    const nuevoEstado = rep.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
-    if (!rep.id) return;
-
-    this.adminService
-      .actualizarEstadoRepartidor(rep.id, nuevoEstado, rep.nombre, rep.tipoVehiculo)
-      .subscribe({
-        next: () => {
-          this.snackBar.open(`Repartidor ${rep.nombre} ahora está ${nuevoEstado}`, 'Cerrar', {
-            duration: 3000,
-          });
-          this.cargarRepartidores();
-        },
-        error: (err) => {
-          const msg = err.error?.message || 'Error al actualizar estado';
-          this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
-        },
-      });
   }
 
   cancelar(envioId: string): void {

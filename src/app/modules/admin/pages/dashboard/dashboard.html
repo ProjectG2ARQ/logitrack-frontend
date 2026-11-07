@@ -7,7 +7,7 @@
 </mat-toolbar>
 
 <div class="dashboard-container">
-  <!-- Tarjeta: Registrar Repartidor -->
+  <!-- Tarjeta: Registrar Repartidor con Credenciales -->
   <mat-card class="dashboard-card">
     <mat-card-header>
       <mat-card-title>Registrar Nuevo Repartidor</mat-card-title>
@@ -20,6 +20,16 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
+          <mat-label>Correo Electrónico (Login)</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="repartidor@logitrack.com" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Contraseña Inicial</mat-label>
+          <input matInput type="password" formControlName="password" placeholder="Mínimo 6 caracteres" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
           <mat-label>Tipo de Vehículo</mat-label>
           <mat-select formControlName="tipoVehiculo">
             <mat-option value="MOTO">Moto</mat-option>
@@ -29,8 +39,8 @@
           </mat-select>
         </mat-form-field>
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="repartidorForm.invalid">
-          <mat-icon>person_add</mat-icon> Registrar
+        <button mat-raised-button color="primary" type="submit" [disabled]="repartidorForm.invalid || isSubmitting">
+          <mat-icon>person_add</mat-icon> {{ isSubmitting ? 'Registrando...' : 'Registrar' }}
         </button>
       </form>
     </mat-card-content>
@@ -42,27 +52,35 @@
       <mat-card-title>Directorio de Repartidores Registrados</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <table class="data-table">
+      <div *ngIf="repartidores.length === 0" class="empty-state">
+        No hay repartidores registrados en el sistema.
+      </div>
+      <table *ngIf="repartidores.length > 0" class="data-table">
         <thead>
         <tr>
           <th>Nombre</th>
           <th>Vehículo</th>
+          <th>User ID</th>
           <th>Estado</th>
-          <th>Acción</th>
+          <th>Acciones</th>
         </tr>
         </thead>
         <tbody>
         <tr *ngFor="let rep of repartidores">
           <td>{{ rep.nombre }}</td>
           <td>{{ rep.tipoVehiculo }}</td>
+          <td>{{ rep.userId || 'Sin vincular' }}</td>
           <td>
-              <span [class.badge-activo]="rep.estado === 'ACTIVO'" [class.badge-inactivo]="rep.estado === 'INACTIVO'">
-                {{ rep.estado }}
-              </span>
+            <span [class.badge-activo]="rep.estado === 'ACTIVO'" [class.badge-inactivo]="rep.estado === 'INACTIVO'">
+              {{ rep.estado }}
+            </span>
           </td>
           <td>
             <button mat-stroked-button [color]="rep.estado === 'ACTIVO' ? 'warn' : 'primary'" (click)="toggleEstadoRepartidor(rep)">
               {{ rep.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }}
+            </button>
+            <button mat-icon-button color="warn" title="Eliminar (Soft Delete)" (click)="eliminarRepartidor(rep)">
+              <mat-icon>delete</mat-icon>
             </button>
           </td>
         </tr>
@@ -156,9 +174,9 @@
           <td>{{ envio.destino.ciudad }} ({{ envio.destino.calle }} {{ envio.destino.numero }})</td>
           <td>${{ envio.tarifa }}</td>
           <td>
-              <span class="badge" [ngClass]="'badge-' + envio.estado.toLowerCase()">
-                {{ envio.estado }}
-              </span>
+            <span class="badge" [ngClass]="'badge-' + envio.estado.toLowerCase()">
+              {{ envio.estado }}
+            </span>
           </td>
           <td>
             <span *ngIf="envio.repartidorId" class="text-muted">Asignado (ID: {{ envio.repartidorId | slice:0:8 }}...)</span>
