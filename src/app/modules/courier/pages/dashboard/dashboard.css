@@ -1,0 +1,60 @@
+/* Paleta corporativa LogiTrack */
+.bg-dark-blue {
+  background-color: #3e5f8a !important;
+  color: white !important;
+}
+
+.btn-primary-blue {
+  background-color: #5783bc !important;
+  color: white !important;
+}
+
+.btn-secondary-blue {
+  background-color: #6a9cde !important;
+  color: white !important;
+}
+
+.bg-light-blue {
+  background-color: #a0c5f7 !important;
+  color: #1a2a40; /* Texto oscuro para contrastar con el fondo claro */
+}
+
+/* Estilos estructurales */
+.dashboard-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.estado-flex {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.table-courier {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table-courier th, .table-courier td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+/* Badges de estado semánticos */
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+.badge-activo { background-color: #e6f4ea; color: #1e8e3e; border: 1px solid #1e8e3e; }
+.badge-inactivo { background-color: #fce8e6; color: #d93025; border: 1px solid #d93025; }
+.badge-pendiente { background-color: #fef7e0; color: #b08d00; }
+.badge-en-ruta { background-color: #e8f0fe; color: #1a73e8; }

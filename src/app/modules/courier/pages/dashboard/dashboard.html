@@ -1,0 +1,75 @@
+<mat-toolbar class="bg-dark-blue">
+  <span>LogiTrack - Portal Repartidor</span>
+  <span style="flex: 1 1 auto;"></span>
+  <button mat-button style="color: white;" (click)="logout()">
+    <mat-icon>logout</mat-icon> Cerrar Sesión
+  </button>
+</mat-toolbar>
+
+<div class="dashboard-container">
+
+  <!-- Tarjeta de Perfil -->
+  <mat-card class="bg-light-blue" style="padding: 1rem;">
+    <mat-card-header>
+      <mat-card-title>Hola, {{ perfil?.nombre || 'Repartidor' }}</mat-card-title>
+      <mat-card-subtitle style="color: #333;">Vehículo: {{ perfil?.tipoVehiculo || 'No asignado' }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content style="margin-top: 1rem;">
+      <div class="estado-flex">
+        <strong>Mi Disponibilidad:</strong>
+        <span class="badge" [ngClass]="perfil?.estado === 'ACTIVO' ? 'badge-activo' : 'badge-inactivo'">
+          {{ perfil?.estado || 'CARGANDO...' }}
+        </span>
+        <button mat-flat-button [class.btn-primary-blue]="perfil?.estado === 'INACTIVO'" [color]="perfil?.estado === 'ACTIVO' ? 'warn' : ''" (click)="toggleDisponibilidad()">
+          <mat-icon>{{ perfil?.estado === 'ACTIVO' ? 'pause_circle' : 'play_circle' }}</mat-icon>
+          {{ perfil?.estado === 'ACTIVO' ? 'Ponerme Inactivo' : 'Ponerme Activo' }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tarjeta de Paquetes -->
+  <mat-card style="padding: 1rem;">
+    <mat-card-header>
+      <mat-card-title>Mis Envíos Asignados</mat-card-title>
+    </mat-card-header>
+    <mat-card-content style="margin-top: 1rem;">
+      <div *ngIf="cargando" style="padding: 1rem;">Cargando tus entregas...</div>
+
+      <div *ngIf="!cargando && misEnvios.length === 0" style="padding: 1rem; color: #666;">
+        No tienes envíos pendientes ni en ruta en este momento.
+      </div>
+
+      <table *ngIf="!cargando && misEnvios.length > 0" class="table-courier">
+        <thead>
+        <tr>
+          <th>Tracking</th>
+          <th>Destino</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let envio of misEnvios">
+          <td><strong>{{ envio.codigoSeguimiento }}</strong></td>
+          <td>{{ envio.destino?.ciudad }} ({{ envio.destino?.calle }} {{ envio.destino?.numero }})</td>
+          <td>
+              <span class="badge" [ngClass]="envio.estado === 'PENDIENTE' ? 'badge-pendiente' : 'badge-en-ruta'">
+                {{ envio.estado }}
+              </span>
+          </td>
+          <td>
+            <button *ngIf="envio.estado === 'PENDIENTE'" mat-flat-button class="btn-secondary-blue" (click)="transicionar(envio, 'EN_RUTA')">
+              <mat-icon>local_shipping</mat-icon> Iniciar Ruta
+            </button>
+
+            <button *ngIf="envio.estado === 'EN_RUTA'" mat-flat-button class="btn-primary-blue" (click)="transicionar(envio, 'ENTREGADO')">
+              <mat-icon>check_circle</mat-icon> Marcar Entregado
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>
