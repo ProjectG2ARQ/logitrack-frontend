@@ -8,7 +8,7 @@ import { AuthService } from '../../../../core/services/auth';
   selector: 'app-courier-dashboard',
   standalone: false,
   templateUrl: './dashboard.html',
-  styleUrls: ['./dashboard.css'], // <-- Asegurate de tener esto declarado
+  styleUrls: ['./dashboard.css'],
 })
 export class DashboardComponent implements OnInit {
   private courierService = inject(CourierService);
@@ -40,7 +40,6 @@ export class DashboardComponent implements OnInit {
   cargarMisEnvios(): void {
     if (!this.perfil) return;
 
-    // Evitamos bucles si ya está procesando
     if (!this.cargando && this.misEnvios.length > 0) return;
 
     forkJoin({
@@ -52,8 +51,12 @@ export class DashboardComponent implements OnInit {
         const enRuta = Array.isArray(res.enRuta) ? res.enRuta : [];
         const todos = [...pendientes, ...enRuta];
 
-        // Filtramos para mostrar únicamente los que coinciden con tu UUID
-        this.misEnvios = todos.filter((e) => e.repartidorId === this.perfil?.id);
+        this.misEnvios = todos.filter(
+          (e) =>
+            e.repartidorId === this.perfil?.id ||
+            e.estado === 'PENDIENTE' ||
+            e.estado === 'EN_RUTA',
+        );
         this.cargando = false;
       },
       error: (err) => {
@@ -63,28 +66,29 @@ export class DashboardComponent implements OnInit {
       },
     });
   }
-
-  toggleDisponibilidad(): void {
+  toggleDisponibilidad(estadoDeseado: 'ACTIVO' | 'INACTIVO'): void {
     if (!this.perfil) return;
-    const nuevoEstado = this.perfil.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
 
-    this.courierService.actualizarMiEstado(this.perfil.id, this.perfil, nuevoEstado).subscribe({
-      next: (perfilActualizado) => {
-        this.perfil = perfilActualizado;
-        this.snackBar.open(`Estado actualizado a ${nuevoEstado}`, 'Cerrar', { duration: 3000 });
-      },
-      error: (err) => {
-        const msg = err.error?.message || 'Error al cambiar de estado';
-        this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
-      },
-    });
+    const perfilParaEnviar = { ...this.perfil, estado: estadoDeseado };
+
+    this.courierService
+      .actualizarMiEstado(this.perfil.id, perfilParaEnviar as any, estadoDeseado)
+      .subscribe({
+        next: () => {
+          this.perfil = { ...this.perfil, estado: estadoDeseado } as RepartidorPerfil;
+        },
+        error: (err) => {
+          const msg = err.error?.message || 'Error al cambiar de estado';
+          this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+        },
+      });
   }
 
   transicionar(envio: Envio, nuevoEstado: string): void {
     this.courierService.actualizarEstadoEnvio(envio.id, nuevoEstado).subscribe({
       next: () => {
         this.snackBar.open(`Paquete actualizado a ${nuevoEstado}`, 'Cerrar', { duration: 3000 });
-        this.cargarMisEnvios(); // Recargamos para reflejar el cambio
+        this.cargarMisEnvios();
       },
       error: (err) => {
         const msg = err.error?.message || 'Error al actualizar paquete';
