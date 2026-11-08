@@ -1,0 +1,81 @@
+<mat-toolbar color="primary" class="client-toolbar">
+  <span class="brand-title">LogiTrack - Rastreo</span>
+  <span class="toolbar-spacer"></span>
+  <button mat-button routerLink="/client/nuevo-envio">
+    <mat-icon>add_box</mat-icon> Nuevo Envío
+  </button>
+  <button mat-button (click)="logout()">
+    <mat-icon>logout</mat-icon> Salir
+  </button>
+</mat-toolbar>
+
+<div class="client-container">
+  <!-- Tarjeta de Búsqueda -->
+  <mat-card class="search-card">
+    <mat-card-header>
+      <mat-card-title>Seguimiento de Encomienda</mat-card-title>
+      <mat-card-subtitle>Ingresá tu código de seguimiento (ej: TRK-JUJ-001)</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form class="search-form" (ngSubmit)="buscarEnvio()">
+        <mat-form-field appearance="outline" class="tracking-input">
+          <mat-label>Código de Tracking</mat-label>
+          <input matInput [(ngModel)]="codigoSeguimiento" name="codigoSeguimiento" placeholder="TRK-..." required>
+          <mat-icon matSuffix>qr_code</mat-icon>
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+          <mat-icon>search</mat-icon> Rastrear
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tarjeta de Resultados -->
+  <mat-card *ngIf="envio" class="result-card">
+    <mat-card-header class="result-header">
+      <div>
+        <mat-card-title>{{ envio.codigoSeguimiento }}</mat-card-title>
+        <mat-card-subtitle>Tarifa facturada: ${{ envio.tarifa | number:'1.2-2' }}</mat-card-subtitle>
+      </div>
+      <div>
+        <span class="badge" [ngClass]="'badge-' + envio.estado.toLowerCase()">
+          {{ envio.estado }}
+        </span>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="details-grid">
+        <div class="detail-block">
+          <h4><mat-icon>my_location</mat-icon> Origen</h4>
+          <p>{{ envio.origen.calle }} {{ envio.origen.numero }}</p>
+          <p>{{ envio.origen.ciudad }} (CP: {{ envio.origen.codigoPostal }})</p>
+        </div>
+
+        <div class="detail-block">
+          <h4><mat-icon>pin_drop</mat-icon> Destino</h4>
+          <p>{{ envio.destino.calle }} {{ envio.destino.numero }}</p>
+          <p>{{ envio.destino.ciudad }} (CP: {{ envio.destino.codigoPostal }})</p>
+        </div>
+
+        <div class="detail-block">
+          <h4><mat-icon>inventory_2</mat-icon> Paquete</h4>
+          <p>Peso: {{ envio.peso }} kg</p>
+          <p>Medidas: {{ envio.ancho }}x{{ envio.alto }}x{{ envio.largo }} cm</p>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions *ngIf="envio.estado === 'PENDIENTE'" class="card-actions">
+      <button mat-stroked-button color="warn" (click)="cancelarEnvio()">
+        <mat-icon>cancel</mat-icon> Cancelar Envío
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Estado vacío cuando no encuentra -->
+  <div *ngIf="busquedaRealizada && !envio && !isLoading" class="empty-state">
+    <mat-icon class="empty-icon">search_off</mat-icon>
+    <p>No se encontraron datos para el código ingresado.</p>
+  </div>
+</div>

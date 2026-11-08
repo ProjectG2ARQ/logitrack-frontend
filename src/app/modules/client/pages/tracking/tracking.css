@@ -1,0 +1,115 @@
+.client-toolbar {
+  display: flex;
+  justify-content: space-between;
+  background-color: #0F172A;
+  color: #FFFFFF;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.client-container {
+  padding: 2rem 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.search-card, .result-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.search-form {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.tracking-input {
+  flex: 1;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 1rem;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.detail-block h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #0F172A;
+  margin-bottom: 0.5rem;
+}
+
+.detail-block p {
+  margin: 0.2rem 0;
+  color: #475569;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #E2E8F0;
+}
+
+/* Badges de estados según consigna de diseño */
+.badge {
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.badge-pendiente {
+  background-color: #FEF3C7;
+  color: #D97706; /* Ámbar 600 */
+}
+
+.badge-en_ruta {
+  background-color: #E0F2FE;
+  color: #0284C7; /* Cielo 600 */
+}
+
+.badge-entregado {
+  background-color: #DCFCE7;
+  color: #16A34A; /* Esmeralda 600 */
+}
+
+.badge-cancelado {
+  background-color: #FEE2E2;
+  color: #DC2626; /* Carmesí 600 */
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #64748B;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.5rem;
+}
+.client-toolbar button {
+  color: #FFFFFF !important;
+}

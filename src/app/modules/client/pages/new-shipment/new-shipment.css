@@ -1,0 +1,76 @@
+.client-toolbar {
+  display: flex;
+  justify-content: space-between;
+  background-color: #0F172A;
+  color: #FFFFFF;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.client-container {
+  padding: 2rem 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.stepper-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.step-form {
+  padding-top: 1.5rem;
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.cost-preview-box {
+  background-color: #F8FAFC;
+  border-left: 4px solid #2563EB;
+  padding: 1rem 1.5rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cost-label {
+  font-size: 1rem;
+  color: #64748B;
+}
+
+.cost-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2563EB;
+}
+
+.summary-box {
+  background-color: #F8FAFC;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  margin: 1.5rem 0;
+}
+
+.summary-box h3 {
+  margin-top: 0;
+  color: #0F172A;
+}
+
+.step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.client-toolbar button {
+  color: #FFFFFF !important;
+}

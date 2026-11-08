@@ -1,0 +1,148 @@
+<mat-toolbar color="primary" class="client-toolbar">
+  <span class="brand-title">LogiTrack - Portal Cliente</span>
+  <span class="toolbar-spacer"></span>
+  <button mat-button routerLink="/client/tracking">
+    <mat-icon>search</mat-icon> Rastrear Paquete
+  </button>
+  <button mat-button (click)="logout()">
+    <mat-icon>logout</mat-icon> Salir
+  </button>
+</mat-toolbar>
+
+<div class="client-container">
+  <mat-card class="stepper-card">
+    <mat-card-header>
+      <mat-card-title>Cotizar y Registrar Nuevo Envío</mat-card-title>
+      <mat-card-subtitle>Completá las dimensiones y direcciones de la encomienda</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-stepper linear #stepper class="custom-stepper">
+        <!-- Paso 1: Dimensiones y Cotización -->
+        <mat-step [stepControl]="packageForm" label="Dimensiones y Costo">
+          <form [formGroup]="packageForm" class="step-form">
+            <div class="cost-preview-box">
+              <span class="cost-label">Tarifa estimada:</span>
+              <span class="cost-amount">${{ tarifaEstimada | number:'1.2-2' }}</span>
+            </div>
+
+            <div class="fields-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Peso (kg)</mat-label>
+                <input matInput type="number" formControlName="peso" (input)="actualizarTarifa()" min="0.1" step="0.5">
+                <mat-icon matSuffix>scale</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Ancho (cm)</mat-label>
+                <input matInput type="number" formControlName="ancho" min="1">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Alto (cm)</mat-label>
+                <input matInput type="number" formControlName="alto" min="1">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Largo (cm)</mat-label>
+                <input matInput type="number" formControlName="largo" min="1">
+              </mat-form-field>
+            </div>
+
+            <div class="step-actions">
+              <button mat-raised-button color="primary" matStepperNext [disabled]="packageForm.invalid">
+                Siguiente: Origen <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Paso 2: Dirección de Origen -->
+        <mat-step [stepControl]="origenForm" label="Origen">
+          <form [formGroup]="origenForm" class="step-form">
+            <div class="fields-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Calle</mat-label>
+                <input matInput formControlName="calle" placeholder="Ej: Lavalle">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Número</mat-label>
+                <input matInput formControlName="numero" placeholder="Ej: 340">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Ciudad</mat-label>
+                <input matInput formControlName="ciudad" placeholder="Ej: San Salvador de Jujuy">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Código Postal</mat-label>
+                <input matInput formControlName="codigoPostal" placeholder="Ej: 4600">
+              </mat-form-field>
+            </div>
+
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>Atrás</button>
+              <button mat-raised-button color="primary" matStepperNext [disabled]="origenForm.invalid">
+                Siguiente: Destino <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Paso 3: Dirección de Destino -->
+        <mat-step [stepControl]="destinoForm" label="Destino">
+          <form [formGroup]="destinoForm" class="step-form">
+            <div class="fields-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Calle</mat-label>
+                <input matInput formControlName="calle" placeholder="Ej: Av. Martijena">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Número</mat-label>
+                <input matInput formControlName="numero" placeholder="Ej: 120">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Ciudad</mat-label>
+                <input matInput formControlName="ciudad" placeholder="Ej: Palpalá">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Código Postal</mat-label>
+                <input matInput formControlName="codigoPostal" placeholder="Ej: 4612">
+              </mat-form-field>
+            </div>
+
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>Atrás</button>
+              <button mat-raised-button color="primary" matStepperNext [disabled]="destinoForm.invalid">
+                Revisar y Confirmar <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Paso 4: Resumen y Confirmación -->
+        <mat-step label="Confirmación">
+          <div class="summary-box">
+            <h3>Resumen del Despacho</h3>
+            <p><strong>Costo total:</strong> ${{ tarifaEstimada | number:'1.2-2' }}</p>
+            <p><strong>Dimensiones:</strong> {{ packageForm.value.peso }} kg ({{ packageForm.value.ancho }}x{{ packageForm.value.alto }}x{{ packageForm.value.largo }} cm)</p>
+            <p><strong>Origen:</strong> {{ origenForm.value.calle }} {{ origenForm.value.numero }}, {{ origenForm.value.ciudad }}</p>
+            <p><strong>Destino:</strong> {{ destinoForm.value.calle }} {{ destinoForm.value.numero }}, {{ destinoForm.value.ciudad }}</p>
+          </div>
+
+          <div class="step-actions">
+            <button mat-button matStepperPrevious>Atrás</button>
+            <button mat-raised-button color="accent" (click)="registrarEnvio()" [disabled]="isLoading">
+              {{ isLoading ? 'Procesando...' : 'Confirmar y Despachar' }}
+            </button>
+          </div>
+        </mat-step>
+      </mat-stepper>
+    </mat-card-content>
+  </mat-card>
+</div>
