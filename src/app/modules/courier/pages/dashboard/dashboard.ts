@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { forkJoin } from 'rxjs';
 import { CourierService, RepartidorPerfil, Envio } from '../../services/courier';
@@ -14,6 +14,7 @@ export class DashboardComponent implements OnInit {
   private courierService = inject(CourierService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
 
   perfil: RepartidorPerfil | null = null;
   misEnvios: Envio[] = [];
@@ -33,14 +34,13 @@ export class DashboardComponent implements OnInit {
       error: () => {
         this.cargando = false;
         this.snackBar.open('Error al cargar tu perfil', 'Cerrar', { duration: 4000 });
+        this.cdr.markForCheck();
       },
     });
   }
 
   cargarMisEnvios(): void {
     if (!this.perfil) return;
-
-    if (!this.cargando && this.misEnvios.length > 0) return;
 
     forkJoin({
       pendientes: this.courierService.obtenerEnviosPorEstado('PENDIENTE'),
@@ -51,31 +51,41 @@ export class DashboardComponent implements OnInit {
         const enRuta = Array.isArray(res.enRuta) ? res.enRuta : [];
         const todos = [...pendientes, ...enRuta];
 
-        this.misEnvios = todos.filter((e) => e.repartidorId === this.perfil?.id);
+        this.misEnvios = todos.filter(
+          (e) => e.repartidorId && e.repartidorId.toLowerCase() === this.perfil?.id?.toLowerCase(),
+        );
         this.cargando = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error al cargar envíos:', err);
         this.cargando = false;
         this.snackBar.open('Error al cargar tus envíos', 'Cerrar', { duration: 3000 });
+        this.cdr.markForCheck();
       },
     });
   }
 
-  toggleDisponibilidad(estadoDeseado: string): void {
+  toggleDisponibilidad(): void {
     if (!this.perfil) return;
-    const perfilParaEnviar = { ...this.perfil, estado: estadoDeseado };
+    const nuevoEstado: 'ACTIVO' | 'INACTIVO' =
+      this.perfil.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+    const perfilParaEnviar = { ...this.perfil, estado: nuevoEstado };
 
     this.courierService
-      .actualizarMiEstado(this.perfil.id, perfilParaEnviar as any, estadoDeseado as any)
+      .actualizarMiEstado(this.perfil.id, perfilParaEnviar, nuevoEstado)
       .subscribe({
         next: () => {
-          this.perfil = { ...this.perfil!, estado: estadoDeseado as any } as RepartidorPerfil;
-          this.snackBar.open(`Estado actualizado a ${estadoDeseado}`, 'Cerrar', { duration: 3000 });
+          this.perfil = { ...this.perfil!, estado: nuevoEstado };
+          this.snackBar.open(`Disponibilidad cambiada a ${nuevoEstado}`, 'Cerrar', {
+            duration: 3000,
+          });
+          this.cdr.markForCheck();
         },
         error: (err) => {
           const msg = err.error?.message || 'Error al cambiar de estado';
           this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+          this.cdr.markForCheck();
         },
       });
   }
@@ -83,12 +93,17 @@ export class DashboardComponent implements OnInit {
   transicionar(envio: Envio, nuevoEstado: string): void {
     this.courierService.actualizarEstadoEnvio(envio.id, nuevoEstado).subscribe({
       next: () => {
-        this.snackBar.open(`Paquete actualizado a ${nuevoEstado}`, 'Cerrar', { duration: 3000 });
+        this.snackBar.open(
+          `Paquete ${envio.codigoSeguimiento} actualizado a ${nuevoEstado}`,
+          'Cerrar',
+          { duration: 3000 },
+        );
         this.cargarMisEnvios();
       },
       error: (err) => {
         const msg = err.error?.message || 'Error al actualizar paquete';
         this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+        this.cdr.markForCheck();
       },
     });
   }
