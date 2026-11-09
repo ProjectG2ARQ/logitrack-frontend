@@ -61,16 +61,17 @@ export class DashboardComponent implements OnInit {
       },
     });
   }
-  toggleDisponibilidad(estadoDeseado: 'ACTIVO' | 'INACTIVO'): void {
-    if (!this.perfil) return;
 
+  toggleDisponibilidad(estadoDeseado: string): void {
+    if (!this.perfil) return;
     const perfilParaEnviar = { ...this.perfil, estado: estadoDeseado };
 
     this.courierService
-      .actualizarMiEstado(this.perfil.id, perfilParaEnviar as any, estadoDeseado)
+      .actualizarMiEstado(this.perfil.id, perfilParaEnviar as any, estadoDeseado as any)
       .subscribe({
         next: () => {
-          this.perfil = { ...this.perfil, estado: estadoDeseado } as RepartidorPerfil;
+          this.perfil = { ...this.perfil!, estado: estadoDeseado as any } as RepartidorPerfil;
+          this.snackBar.open(`Estado actualizado a ${estadoDeseado}`, 'Cerrar', { duration: 3000 });
         },
         error: (err) => {
           const msg = err.error?.message || 'Error al cambiar de estado';

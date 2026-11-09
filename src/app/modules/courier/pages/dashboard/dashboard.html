@@ -16,18 +16,18 @@
     <mat-card-content style="margin-top: 1rem;">
       <div class="estado-flex">
         <strong>Mi Disponibilidad:</strong>
-        <span class="badge" [ngClass]="perfil?.estado === 'ACTIVO' ? 'badge-activo' : 'badge-inactivo'">
-          {{ perfil?.estado || 'CARGANDO...' }}
+        <span class="badge" [ngClass]="perfil?.estado === 'ACTIVO' ? 'badge-inactivo' : 'badge-activo'">
+          {{ perfil?.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO' }}
         </span>
-        <button mat-flat-button [class.btn-primary-blue]="perfil?.estado === 'INACTIVO'" [color]="perfil?.estado === 'ACTIVO' ? 'warn' : ''" (click)="toggleDisponibilidad(perfil?.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO')">
-          <mat-icon>{{ perfil?.estado === 'ACTIVO' ? 'pause_circle' : 'play_circle' }}</mat-icon>
-          {{ perfil?.estado === 'ACTIVO' ? 'Ponerme Inactivo' : 'Ponerme Activo' }}
+        <button mat-flat-button [class.btn-primary-blue]="perfil?.estado === 'ACTIVO'" [color]="perfil?.estado === 'ACTIVO' ? '' : 'warn'" (click)="toggleDisponibilidad(perfil?.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO')">
+          <mat-icon>{{ perfil?.estado === 'ACTIVO' ? 'play_circle' : 'pause_circle' }}</mat-icon>
+          {{ perfil?.estado === 'ACTIVO' ? 'Ponerme Activo' : 'Ponerme Inactivo' }}
         </button>
       </div>
     </mat-card-content>
   </mat-card>
 
-  <mat-card style="padding: 1rem;">
+  <mat-card style="padding: 1rem; margin-top: 1.5rem;">
     <mat-card-header>
       <mat-card-title>Mis Envíos Asignados</mat-card-title>
     </mat-card-header>
@@ -70,4 +70,45 @@
       </table>
     </mat-card-content>
   </mat-card>
+
 </div>
+
+<footer style="background-color: #2c476c; color: #e2e8f0; padding: 2.5rem 1rem 1.5rem 1rem; margin-top: auto; border-top: 3px solid #5783bc; font-family: Roboto, sans-serif;">
+  <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.15);">
+
+    <div>
+      <h3 style="color: white; font-size: 1.1rem; margin-bottom: 0.75rem; font-weight: 500;">LogiTrack FastLine</h3>
+      <p style="font-size: 0.9rem; line-height: 1.5; color: #cbd5e1; margin: 0;">
+        Plataforma inteligente de gestión logística y distribución de última milla desarrollada por ProjectG2ARQ.
+      </p>
+    </div>
+
+    <div>
+      <h3 style="color: white; font-size: 1.1rem; margin-bottom: 0.75rem; font-weight: 500;">Ubicación y Contacto</h3>
+      <p style="font-size: 0.9rem; line-height: 1.5; color: #cbd5e1; margin: 0 0 0.4rem 0;">
+        <mat-icon style="font-size: 0.95rem; width: 0.95rem; height: 0.95rem; vertical-align: middle;">location_on</mat-icon> Gral. Belgrano 980, San Salvador de Jujuy
+      </p>
+      <p style="font-size: 0.9rem; line-height: 1.5; color: #cbd5e1; margin: 0;">
+        <mat-icon style="font-size: 0.95rem; width: 0.95rem; height: 0.95rem; vertical-align: middle;">email</mat-icon> soporte@logitrack.com
+      </p>
+    </div>
+
+    <div>
+      <h3 style="color: white; font-size: 1.1rem; margin-bottom: 0.75rem; font-weight: 500;">Redes Sociales</h3>
+      <div style="display: flex; gap: 1rem; font-size: 0.95rem;">
+        <a href="https://instagram.com" target="_blank" style="color: #cbd5e1; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s;">
+          <mat-icon style="font-size: 1.2rem; width: 1.2rem; height: 1.2rem;">photo_camera</mat-icon> Instagram
+        </a>
+        <a href="https://facebook.com" target="_blank" style="color: #cbd5e1; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s;">
+          <mat-icon style="font-size: 1.2rem; width: 1.2rem; height: 1.2rem;">public</mat-icon> Facebook
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="max-width: 1200px; margin: 1.5rem auto 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; color: #94a3b8;">
+    <p style="margin: 0;">&copy; 2026 ProjectG2ARQ - LogiTrack_FastLine. Todos los derechos reservados.</p>
+    <p style="margin: 0;">Facultad de Ingeniería - UNJu</p>
+  </div>
+</footer>
