@@ -2,20 +2,24 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 85vh;
-  padding: 1rem;
-  /* Fondo con imagen y capa semitransparente para que el formulario destaque */
-  background: linear-gradient(rgba(241, 245, 249, 0.82), rgba(241, 245, 249, 0.88)),
-  url('/login-bg.jpg') center/cover no-repeat;
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+  padding: 1.5rem;
+
+  /* Capa mucho más sutil (25% a 35% de opacidad) para que resalte la imagen y sus colores vivos */
+  background: linear-gradient(rgba(240, 244, 250, 0.25), rgba(240, 244, 250, 0.35)),
+  url('/login-bg.jpg') center center / cover no-repeat fixed;
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-  background-color: #ffffff;
+  padding: 2.25rem 2rem;
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.18);
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.94); /* La tarjeta mantiene contraste y legibilidad */
+  backdrop-filter: blur(4px); /* Efecto vidrio moderno */
 }
 
 .login-card mat-card-header {
@@ -26,13 +30,14 @@
   text-align: center;
 }
 
+/* Logo del grupo */
 .login-header-logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 10px;
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
   object-fit: cover;
-  margin-bottom: 0.75rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin-bottom: 0.85rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 
 .full-width {
@@ -42,6 +47,7 @@
 
 .submit-btn {
   margin-top: 0.5rem;
-  padding: 1.2rem;
+  padding: 1.3rem;
   font-size: 1rem;
+  font-weight: 600;
 }

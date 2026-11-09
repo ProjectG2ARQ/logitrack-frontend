@@ -74,34 +74,40 @@ export class LoginComponent {
     this.isLoading = true;
     const formVal = this.registerForm.value;
 
-    // 1° Registra en security-service (obtiene token y userId)
-    // 2° Registra en shipment-service con el userId devuelto
+    // 1° Crear credenciales en security-service
     this.authService
       .registrarUsuarioAuth({
-        email: formVal.email,
+        email: formVal.email.trim(),
         password: formVal.password,
         rol: 'CLIENTE',
       })
       .pipe(
+        // 2° Crear perfil operativo en shipment-service con el userId devuelto
         switchMap((authRes: any) =>
           this.authService.registrarPerfilCliente({
             userId: authRes.userId,
-            nombre: formVal.nombre,
-            email: formVal.email,
-            telefono: formVal.telefono,
+            nombre: formVal.nombre.trim(),
+            email: formVal.email.trim(),
+            telefono: String(formVal.telefono).trim(),
           })
         )
       )
       .subscribe({
         next: () => {
           this.isLoading = false;
-          this.snackBar.open('¡Cuenta creada con éxito!', 'Cerrar', { duration: 3500 });
+          this.snackBar.open('¡Bienvenido! Cuenta creada con éxito', 'Cerrar', { duration: 3500 });
           this.router.navigate(['/client/dashboard']);
         },
         error: (err: any) => {
           this.isLoading = false;
-          const msg = err.error?.message || 'Error al registrar el cliente';
-          this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+          // Extrae el mensaje específico (ej: email duplicado, validación de campo)
+          let mensaje = 'Error al registrar el cliente';
+          if (err.error?.message) {
+            mensaje = err.error.message;
+          } else if (err.error?.errors) {
+            mensaje = Object.values(err.error.errors).join(', ');
+          }
+          this.snackBar.open(mensaje, 'Cerrar', { duration: 5000 });
         },
       });
   }
