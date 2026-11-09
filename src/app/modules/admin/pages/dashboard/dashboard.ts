@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { switchMap } from 'rxjs';
@@ -16,7 +16,11 @@ export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
 
+  seccionActiva: 'repartidores' | 'envios' = 'repartidores';
+
+  adminEmail: string = '';
   repartidores: Repartidor[] = [];
   repartidoresActivos: Repartidor[] = [];
 
@@ -35,7 +39,21 @@ export class DashboardComponent implements OnInit {
   isSubmitting = false;
 
   ngOnInit(): void {
+    const seccionGuardada = sessionStorage.getItem('logitrack_admin_seccion') as
+      'repartidores' | 'envios';
+    if (seccionGuardada) {
+      this.seccionActiva = seccionGuardada;
+    }
+
+    const userInfo = JSON.parse(localStorage.getItem('logitrack_user_info') || '{}');
+    this.adminEmail = userInfo.email || 'admin@logitrack.com';
     this.cargarDatos();
+  }
+
+  cambiarSeccion(seccion: 'repartidores' | 'envios'): void {
+    this.seccionActiva = seccion;
+    sessionStorage.setItem('logitrack_admin_seccion', seccion);
+    this.cdr.markForCheck();
   }
 
   cargarDatos(): void {
@@ -49,6 +67,7 @@ export class DashboardComponent implements OnInit {
       next: (data) => {
         this.repartidores = data;
         this.repartidoresActivos = data.filter((r) => r.estado === 'ACTIVO');
+        this.cdr.markForCheck();
       },
       error: () => this.snackBar.open('Error al cargar repartidores', 'Cerrar', { duration: 3000 }),
     });
@@ -56,7 +75,11 @@ export class DashboardComponent implements OnInit {
 
   cargarPendientes(): void {
     this.adminService.obtenerEnviosPendientes().subscribe({
-      next: (data) => (this.enviosPendientes = data),
+      next: (data) => {
+        // Solo los pendientes que NO tengan repartidor asignado
+        this.enviosPendientes = data.filter((e) => !e.repartidorId);
+        this.cdr.markForCheck();
+      },
       error: () =>
         this.snackBar.open('Error al cargar envíos pendientes', 'Cerrar', { duration: 3000 }),
     });
@@ -65,7 +88,10 @@ export class DashboardComponent implements OnInit {
   filtrarEnvios(estado: string): void {
     this.estadoSeleccionado = estado;
     this.adminService.obtenerEnviosPorEstado(estado).subscribe({
-      next: (data) => (this.envios = data),
+      next: (data) => {
+        this.envios = data;
+        this.cdr.markForCheck();
+      },
       error: () =>
         this.snackBar.open(`Error al cargar envíos con estado ${estado}`, 'Cerrar', {
           duration: 3000,
@@ -73,7 +99,15 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // Creación combinada: 1° Auth -> 2° Courier
+  /// Resuelve el nombre del repartidor a partir de su ID
+  obtenerNombreRepartidor(repartidorId?: string): string {
+    if (!repartidorId) return 'Sin asignar';
+    const rep = this.repartidores.find(
+      (r) => r.id?.toLowerCase() === repartidorId.toLowerCase()
+    );
+    return rep ? rep.nombre : `Asignado (ID: ${repartidorId.substring(0, 8)}...)`;
+  }
+
   crearRepartidor(): void {
     if (this.repartidorForm.invalid || this.isSubmitting) return;
 
@@ -99,16 +133,16 @@ export class DashboardComponent implements OnInit {
       .subscribe({
         next: () => {
           this.isSubmitting = false;
-          this.snackBar.open('Repartidor y credenciales registrados con éxito', 'Cerrar', {
-            duration: 3500,
-          });
+          this.snackBar.open('Repartidor registrado con éxito', 'Cerrar', { duration: 3500 });
           this.repartidorForm.reset({ tipoVehiculo: 'FURGONETA', estado: 'ACTIVO' });
           this.cargarRepartidores();
+          this.cdr.markForCheck();
         },
         error: (err) => {
           this.isSubmitting = false;
-          const msg = err.error?.message || 'Error en el alta combinada del repartidor';
+          const msg = err.error?.message || 'Error al registrar repartidor';
           this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+          this.cdr.markForCheck();
         },
       });
   }
@@ -118,14 +152,17 @@ export class DashboardComponent implements OnInit {
     const nuevoEstado = rep.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
 
     this.adminService
-      .actualizarEstadoRepartidor(rep.id, nuevoEstado, rep.nombre, rep.tipoVehiculo)
+      .actualizarEstadoRepartidor(rep.id, nuevoEstado, rep.nombre, rep.tipoVehiculo, rep.userId)
       .subscribe({
         next: () => {
-          this.snackBar.open(`Estado actualizado a ${nuevoEstado}`, 'Cerrar', { duration: 3000 });
+          this.snackBar.open(`Repartidor ${rep.nombre} ahora está ${nuevoEstado}`, 'Cerrar', {
+            duration: 3000,
+          });
           this.cargarRepartidores();
+          this.cargarPendientes();
         },
         error: (err) => {
-          const msg = err.error?.message || 'Error al actualizar estado';
+          const msg = err.error?.message || 'Error al actualizar disponibilidad';
           this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
         },
       });
@@ -136,13 +173,11 @@ export class DashboardComponent implements OnInit {
 
     this.adminService.eliminarRepartidor(rep.id).subscribe({
       next: () => {
-        this.snackBar.open(`Repartidor ${rep.nombre} eliminado (baja lógica)`, 'Cerrar', {
-          duration: 3000,
-        });
+        this.snackBar.open(`Repartidor ${rep.nombre} dado de baja`, 'Cerrar', { duration: 3000 });
         this.cargarRepartidores();
       },
       error: (err) => {
-        const msg = err.error?.message || 'Error al eliminar repartidor';
+        const msg = err.error?.message || 'Error al dar de baja al repartidor';
         this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
       },
     });
@@ -164,8 +199,8 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  cancelar(envioId: string): void {
-    this.adminService.cancelarEnvio(envioId).subscribe({
+  cancelar(codigoSeguimiento: string): void {
+    this.adminService.cancelarEnvio(codigoSeguimiento).subscribe({
       next: () => {
         this.snackBar.open('Envío cancelado con éxito', 'Cerrar', { duration: 3000 });
         this.cargarPendientes();

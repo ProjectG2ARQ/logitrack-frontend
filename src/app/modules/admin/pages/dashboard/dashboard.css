@@ -1,10 +1,43 @@
-.dashboard-toolbar {
+:host {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.admin-toolbar {
+  background-color: #3e5f8a !important;
+  color: white !important;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.brand-title {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-buttons button {
+  color: #e2e8f0 !important;
+}
+
+.btn-nav-active {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  font-weight: 600;
 }
 
 .toolbar-spacer {
   flex: 1 1 auto;
+}
+
+.btn-logout {
+  color: white !important;
 }
 
 .dashboard-container {
@@ -14,10 +47,40 @@
   gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.profile-card {
+  background-color: #a0c5f7 !important;
+  color: #1a2a40;
+  padding: 0.75rem 1rem;
 }
 
 .dashboard-card {
   padding: 1rem;
+}
+
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.filter-container mat-form-field {
+  width: 220px;
+  margin-bottom: -1.25em;
 }
 
 .form-grid {
@@ -40,19 +103,91 @@
   text-align: left;
 }
 
-.assign-action {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+.select-assign {
+  width: 230px;
+  margin-bottom: -1.25em;
 }
 
-.select-assign {
-  width: 250px;
-  margin-bottom: -1.25em;
+.assign-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .empty-state {
   padding: 1.5rem;
   text-align: center;
   color: #777;
+}
+
+.badge-activo { background-color: #e6f4ea; color: #1e8e3e; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+.badge-inactivo { background-color: #fce8e6; color: #d93025; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+.badge-pendiente { background-color: #FEF3C7; color: #D97706; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+.badge-en_ruta { background-color: #E0F2FE; color: #0284C7; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+.badge-entregado { background-color: #DCFCE7; color: #16A34A; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+.badge-cancelado { background-color: #FEE2E2; color: #DC2626; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+
+.app-footer {
+  background-color: #2c476c;
+  color: #e2e8f0;
+  padding: 2.5rem 1rem 1.5rem 1rem;
+  margin-top: auto;
+  border-top: 3px solid #5783bc;
+  font-family: Roboto, sans-serif;
+}
+
+.footer-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.footer-grid h3 {
+  color: white;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.footer-grid p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+  margin: 0 0 0.4rem 0;
+}
+
+.footer-grid mat-icon {
+  font-size: 0.95rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  vertical-align: middle;
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-links a {
+  color: #cbd5e1;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: 1.5rem auto 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
 }

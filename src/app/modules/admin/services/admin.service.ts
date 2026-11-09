@@ -62,11 +62,13 @@ export class AdminService {
     nuevoEstado: 'ACTIVO' | 'INACTIVO',
     nombre: string,
     tipoVehiculo: string,
+    userId?: number,
   ): Observable<Repartidor> {
     return this.http.patch<Repartidor>(`${this.COURIER_URL}/${id}/estado`, {
       nombre,
       tipoVehiculo,
       estado: nuevoEstado,
+      userId: userId ?? null,
     });
   }
 
@@ -90,7 +92,7 @@ export class AdminService {
     return this.http.get<Envio[]>(`${this.SHIPMENT_URL}?estado=${estado}`);
   }
 
-  cancelarEnvio(id: string): Observable<void> {
-    return this.http.post<void>(`${this.SHIPMENT_URL}/${id}/cancelar`, {});
+  cancelarEnvio(codigoSeguimiento: string): Observable<void> {
+    return this.http.post<void>(`${this.SHIPMENT_URL}/${codigoSeguimiento}/cancelar`, {});
   }
 }
