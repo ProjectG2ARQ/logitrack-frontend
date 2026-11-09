@@ -61,4 +61,34 @@ export class AuthService {
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
+  registrarUsuarioAuth(datos: { email: string; password: string; rol: string }): Observable<any> {
+    return this.http
+      .post<any>('http://localhost:8066/applications/api-security/api/v1/auth/register', datos)
+      .pipe(
+        tap((res) => {
+          // Al registrarse, guardamos de inmediato el token devuelto
+          if (res?.token) {
+            localStorage.setItem('token', res.token);
+          }
+          if (res?.rol) {
+            localStorage.setItem('rol', res.rol);
+          }
+          if (res?.userId) {
+            localStorage.setItem('userId', String(res.userId));
+          }
+        })
+      );
+  }
+
+  registrarPerfilCliente(cliente: {
+    userId: number;
+    nombre: string;
+    email: string;
+    telefono: string;
+  }): Observable<any> {
+    return this.http.post<any>(
+      'http://localhost:8066/applications/api-shipment/api/v1/clientes',
+      cliente
+    );
+  }
 }

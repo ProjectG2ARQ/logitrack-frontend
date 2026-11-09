@@ -1,12 +1,13 @@
 <div class="login-container">
   <mat-card class="login-card">
     <mat-card-header>
-      <mat-card-title>Iniciar Sesión</mat-card-title>
+      <mat-card-title>{{ isRegisterMode ? 'Crear Cuenta' : 'Iniciar Sesión' }}</mat-card-title>
       <mat-card-subtitle>Plataforma LogiTrack</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- LOGIN -->
+      <form *ngIf="!isRegisterMode" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Correo Electrónico</mat-label>
           <input matInput type="email" formControlName="email" placeholder="ejemplo@logitrack.com" required>
@@ -34,6 +35,46 @@
           {{ isLoading ? 'Iniciando...' : 'Ingresar' }}
         </button>
       </form>
+
+      <!-- REGISTRO -->
+      <form *ngIf="isRegisterMode" [formGroup]="registerForm" (ngSubmit)="onRegister()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre Completo</mat-label>
+          <input matInput formControlName="nombre" placeholder="Ej: Juan Pérez" required />
+          <mat-icon matSuffix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Teléfono</mat-label>
+          <input matInput formControlName="telefono" placeholder="Ej: 3884123456" required />
+          <mat-icon matSuffix>phone</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Correo Electrónico</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="ejemplo@logitrack.com" required />
+          <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" required />
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" class="full-width submit-btn" type="submit" [disabled]="registerForm.invalid || isLoading">
+          {{ isLoading ? 'Registrando...' : 'Registrarme' }}
+        </button>
+      </form>
+
+      <!-- BOTÓN SWITCH -->
+      <div style="margin-top: 16px; text-align: center;">
+        <button mat-button type="button" (click)="toggleMode()" color="accent">
+          {{ isRegisterMode ? '¿Ya tenés cuenta? Iniciá sesión' : '¿No tenés cuenta? Registrate acá' }}
+        </button>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>
