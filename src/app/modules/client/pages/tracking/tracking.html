@@ -1,84 +1,159 @@
-<mat-toolbar color="primary" class="client-toolbar">
+<!-- NAVBAR IDÉNTICO AL ADMIN -->
+<mat-toolbar class="admin-toolbar">
   <div class="toolbar-brand">
     <img src="/logo-grupo.jpg" alt="Logo" class="app-header-logo">
-    <span class="brand-title">LogiTrack · Rastreo</span>
+    <span class="brand-title">LogiTrack · Portal Cliente</span>
   </div>
+
+  <div class="nav-buttons">
+    <button mat-button routerLink="/client/tracking" class="btn-nav-active">
+      <mat-icon>search</mat-icon> Rastreo
+    </button>
+    <button mat-button routerLink="/client/nuevo-envio">
+      <mat-icon>add_box</mat-icon> Nuevo Envío
+    </button>
+  </div>
+
   <span class="toolbar-spacer"></span>
-  <button mat-button routerLink="/client/nuevo-envio">
-    <mat-icon>add_box</mat-icon> Nuevo Envío
-  </button>
-  <button mat-button (click)="logout()">
+  <button mat-button class="btn-logout" (click)="logout()">
     <mat-icon>logout</mat-icon> Salir
   </button>
 </mat-toolbar>
 
-<div class="client-container">
-  <!-- Tarjeta de Búsqueda -->
-  <mat-card class="search-card">
+<div class="dashboard-container">
+
+  <!-- Tarjeta de Perfil del Cliente -->
+  <mat-card class="profile-card">
     <mat-card-header>
-      <mat-card-title>Seguimiento de Encomienda</mat-card-title>
-      <mat-card-subtitle>Ingresá tu código de seguimiento (ej: TRK-JUJ-001)</mat-card-subtitle>
+      <mat-card-title>Portal de Encomiendas y Seguimiento</mat-card-title>
+      <mat-card-subtitle>Rol: CLIENTE</mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- BUSCADOR -->
+  <mat-card class="dashboard-card">
+    <mat-card-header>
+      <mat-card-title>Seguimiento de Encomiendas</mat-card-title>
+      <mat-card-subtitle>Ingresá tu código de rastreo para consultar o gestionar tu envío</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <form class="search-form" (ngSubmit)="buscarEnvio()">
-        <mat-form-field appearance="outline" class="tracking-input">
-          <mat-label>Código de Tracking</mat-label>
-          <input matInput [(ngModel)]="codigoSeguimiento" name="codigoSeguimiento" placeholder="TRK-..." required>
-          <mat-icon matSuffix>qr_code</mat-icon>
+      <div class="form-grid">
+        <mat-form-field appearance="outline" style="flex: 1; min-width: 280px; margin-bottom: -1.25em;">
+          <mat-label>Código de Seguimiento</mat-label>
+          <input
+            matInput
+            [(ngModel)]="codigoSeguimiento"
+            placeholder="Ej: TRK-95028A71"
+            (keyup.enter)="buscarEnvio()"
+          >
+          <mat-icon matPrefix>qr_code</mat-icon>
         </mat-form-field>
-        <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
-          <mat-icon>search</mat-icon> Rastrear
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="buscarEnvio()"
+          [disabled]="isLoading || !codigoSeguimiento.trim()"
+        >
+          <mat-icon *ngIf="!isLoading">search</mat-icon>
+          <span>{{ isLoading ? 'Buscando...' : 'Rastrear' }}</span>
         </button>
-      </form>
+      </div>
     </mat-card-content>
   </mat-card>
 
-  <!-- Tarjeta de Resultados -->
-  <mat-card *ngIf="envio" class="result-card">
-    <mat-card-header class="result-header">
-      <div>
-        <mat-card-title>{{ envio.codigoSeguimiento }}</mat-card-title>
-        <mat-card-subtitle>Tarifa facturada: ${{ envio.tarifa | number:'1.2-2' }}</mat-card-subtitle>
+  <!-- ESTADO VACÍO SI BUSCÓ Y NO ENCONTRÓ -->
+  <mat-card *ngIf="busquedaRealizada && !isLoading && !envio" class="dashboard-card">
+    <mat-card-content>
+      <div class="empty-state">
+        No se encontró ningún paquete con el código ingresado.
       </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- DETALLE DEL ENVÍO CON LA TABLA DEL ADMIN -->
+  <mat-card *ngIf="envio" class="dashboard-card">
+    <mat-card-header class="card-header-flex">
       <div>
-        <span class="badge" [ngClass]="'badge-' + envio.estado.toLowerCase()">
+        <mat-card-title>Detalle del Envío: {{ envio.codigoSeguimiento }}</mat-card-title>
+        <mat-card-subtitle>Tarifa facturada: <strong>${{ envio.tarifa }}</strong></mat-card-subtitle>
+      </div>
+
+      <div>
+        <span [ngClass]="'badge-' + envio.estado.toLowerCase()">
           {{ envio.estado }}
         </span>
       </div>
     </mat-card-header>
 
     <mat-card-content>
-      <div class="details-grid">
-        <div class="detail-block">
-          <h4><mat-icon>my_location</mat-icon> Origen</h4>
-          <p>{{ envio.origen.calle }} {{ envio.origen.numero }}</p>
-          <p>{{ envio.origen.ciudad }} (CP: {{ envio.origen.codigoPostal }})</p>
-        </div>
-
-        <div class="detail-block">
-          <h4><mat-icon>pin_drop</mat-icon> Destino</h4>
-          <p>{{ envio.destino.calle }} {{ envio.destino.numero }}</p>
-          <p>{{ envio.destino.ciudad }} (CP: {{ envio.destino.codigoPostal }})</p>
-        </div>
-
-        <div class="detail-block">
-          <h4><mat-icon>inventory_2</mat-icon> Paquete</h4>
-          <p>Peso: {{ envio.peso }} kg</p>
-          <p>Medidas: {{ envio.ancho }}x{{ envio.alto }}x{{ envio.largo }} cm</p>
-        </div>
-      </div>
+      <table class="data-table">
+        <thead>
+        <tr>
+          <th>Tracking</th>
+          <th>Origen</th>
+          <th>Destino</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td><strong>{{ envio.codigoSeguimiento }}</strong></td>
+          <td>
+            {{ envio.origen?.ciudad }} ({{ envio.origen?.calle }} {{ envio.origen?.numero }})
+          </td>
+          <td>
+            {{ envio.destino?.ciudad }} ({{ envio.destino?.calle }} {{ envio.destino?.numero }})
+          </td>
+          <td>
+              <span [ngClass]="'badge-' + envio.estado.toLowerCase()">
+                {{ envio.estado }}
+              </span>
+          </td>
+          <td>
+            <button
+              *ngIf="envio.estado === 'PENDIENTE'"
+              mat-stroked-button
+              color="warn"
+              (click)="cancelarEnvio()"
+            >
+              <mat-icon>cancel</mat-icon> Cancelar Envío
+            </button>
+            <span *ngIf="envio.estado !== 'PENDIENTE'" style="color: #777; font-size: 0.85rem;">
+                Sin acciones disponibles
+              </span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </mat-card-content>
-
-    <mat-card-actions *ngIf="envio.estado === 'PENDIENTE'" class="card-actions">
-      <button mat-stroked-button color="warn" (click)="cancelarEnvio()">
-        <mat-icon>cancel</mat-icon> Cancelar Envío
-      </button>
-    </mat-card-actions>
   </mat-card>
 
-  <!-- Estado vacío cuando no encuentra -->
-  <div *ngIf="busquedaRealizada && !envio && !isLoading" class="empty-state">
-    <mat-icon class="empty-icon">search_off</mat-icon>
-    <p>No se encontraron datos para el código ingresado.</p>
-  </div>
 </div>
+
+<!-- FOOTER CORPORATIVO UNIFICADO -->
+<footer class="app-footer">
+  <div class="footer-grid">
+    <div>
+      <h3>LogiTrack FastLine</h3>
+      <p>Plataforma inteligente de gestión logística y distribución de última milla desarrollada por ProjectG2ARQ.</p>
+    </div>
+    <div>
+      <h3>Ubicación y Contacto</h3>
+      <p><mat-icon>location_on</mat-icon> Gral. Belgrano 980, San Salvador de Jujuy</p>
+      <p><mat-icon>email</mat-icon> soporte&#64;logitrack.com</p>
+    </div>
+    <div>
+      <h3>Redes Sociales</h3>
+      <div class="social-links">
+        <a href="https://instagram.com" target="_blank"><mat-icon>photo_camera</mat-icon> Instagram</a>
+        <a href="https://facebook.com" target="_blank"><mat-icon>public</mat-icon> Facebook</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 ProjectG2ARQ - LogiTrack_FastLine. Todos los derechos reservados.</p>
+    <p>Facultad de Ingeniería - UNJu</p>
+  </div>
+</footer>

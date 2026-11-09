@@ -69,7 +69,11 @@ export class TrackingComponent implements OnInit {
     });
   }
 
+  // Agregá Router y AuthService si no los tenías:
+
   logout(): void {
     this.authService.logout();
+    this.router.navigate(['/admin/login']);
   }
+
 }

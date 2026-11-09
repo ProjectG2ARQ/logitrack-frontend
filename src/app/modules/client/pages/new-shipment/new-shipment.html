@@ -1,16 +1,37 @@
-<mat-toolbar color="primary" class="client-toolbar">
-  <span class="brand-title">LogiTrack - Portal Cliente</span>
+<!-- NAVBAR IDÉNTICO AL ADMIN -->
+<mat-toolbar class="admin-toolbar">
+  <div class="toolbar-brand">
+    <img src="/logo-grupo.jpg" alt="Logo" class="app-header-logo">
+    <span class="brand-title">LogiTrack · Portal Cliente</span>
+  </div>
+
+  <div class="nav-buttons">
+    <button mat-button routerLink="/client/tracking">
+      <mat-icon>search</mat-icon> Rastreo
+    </button>
+    <button mat-button routerLink="/client/nuevo-envio" class="btn-nav-active">
+      <mat-icon>add_box</mat-icon> Nuevo Envío
+    </button>
+  </div>
+
   <span class="toolbar-spacer"></span>
-  <button mat-button routerLink="/client/tracking">
-    <mat-icon>search</mat-icon> Rastrear Paquete
-  </button>
-  <button mat-button (click)="logout()">
+  <button mat-button class="btn-logout" (click)="logout()">
     <mat-icon>logout</mat-icon> Salir
   </button>
 </mat-toolbar>
 
-<div class="client-container">
-  <mat-card class="stepper-card">
+<div class="dashboard-container">
+
+  <!-- Tarjeta de Perfil del Cliente -->
+  <mat-card class="profile-card">
+    <mat-card-header>
+      <mat-card-title>Gestión y Cotización de Envíos</mat-card-title>
+      <mat-card-subtitle>Rol: CLIENTE</mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- STEPPER DE REGISTRO DE ENVÍO -->
+  <mat-card class="dashboard-card">
     <mat-card-header>
       <mat-card-title>Cotizar y Registrar Nuevo Envío</mat-card-title>
       <mat-card-subtitle>Completá las dimensiones y direcciones de la encomienda</mat-card-subtitle>
@@ -130,7 +151,7 @@
           <div class="summary-box">
             <h3>Resumen del Despacho</h3>
             <p><strong>Costo total:</strong> ${{ tarifaEstimada | number:'1.2-2' }}</p>
-            <p><strong>Dimensiones:</strong> {{ packageForm.value.peso }} kg ({{ packageForm.value.ancho }}x{{ packageForm.value.alto }}x{{ packageForm.value.largo }} cm)</p>
+            <p><strong>Dimensiones:</strong> {{ packageForm.value.peso }} kg ({{ packageForm.value.ancho }} × {{ packageForm.value.alto }} × {{ packageForm.value.largo }} cm)</p>
             <p><strong>Origen:</strong> {{ origenForm.value.calle }} {{ origenForm.value.numero }}, {{ origenForm.value.ciudad }}</p>
             <p><strong>Destino:</strong> {{ destinoForm.value.calle }} {{ destinoForm.value.numero }}, {{ destinoForm.value.ciudad }}</p>
           </div>
@@ -145,4 +166,31 @@
       </mat-stepper>
     </mat-card-content>
   </mat-card>
+
 </div>
+
+<!-- FOOTER CORPORATIVO UNIFICADO -->
+<footer class="app-footer">
+  <div class="footer-grid">
+    <div>
+      <h3>LogiTrack FastLine</h3>
+      <p>Plataforma inteligente de gestión logística y distribución de última milla desarrollada por ProjectG2ARQ.</p>
+    </div>
+    <div>
+      <h3>Ubicación y Contacto</h3>
+      <p><mat-icon>location_on</mat-icon> Gral. Belgrano 980, San Salvador de Jujuy</p>
+      <p><mat-icon>email</mat-icon> soporte&#64;logitrack.com</p>
+    </div>
+    <div>
+      <h3>Redes Sociales</h3>
+      <div class="social-links">
+        <a href="https://instagram.com" target="_blank"><mat-icon>photo_camera</mat-icon> Instagram</a>
+        <a href="https://facebook.com" target="_blank"><mat-icon>public</mat-icon> Facebook</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 ProjectG2ARQ - LogiTrack_FastLine. Todos los derechos reservados.</p>
+    <p>Facultad de Ingeniería - UNJu</p>
+  </div>
+</footer>

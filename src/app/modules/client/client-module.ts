@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 // Angular Material
 import { MatCardModule } from '@angular/material/card';
@@ -17,11 +18,15 @@ import { NewShipmentComponent } from './pages/new-shipment/new-shipment';
 import { TrackingComponent } from './pages/tracking/tracking';
 
 @NgModule({
-  declarations: [NewShipmentComponent, TrackingComponent],
+  declarations: [
+    NewShipmentComponent,
+    TrackingComponent
+  ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    RouterModule,
     ClientRoutingModule,
     MatCardModule,
     MatFormFieldModule,
@@ -30,7 +35,7 @@ import { TrackingComponent } from './pages/tracking/tracking';
     MatIconModule,
     MatStepperModule,
     MatSnackBarModule,
-    MatToolbarModule,
-  ],
+    MatToolbarModule
+  ]
 })
-export class ClientModule {}
+export class ClientModule { }
