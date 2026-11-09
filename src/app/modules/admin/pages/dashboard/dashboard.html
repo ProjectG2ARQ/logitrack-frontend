@@ -1,5 +1,8 @@
 <mat-toolbar class="admin-toolbar">
-  <span class="brand-title">LogiTrack · Portal Administrativo</span>
+  <div class="toolbar-brand">
+    <img src="/logo-grupo.jpg" alt="Logo" class="app-header-logo">
+    <span class="brand-title">LogiTrack · Portal Administrativo</span>
+  </div>
 
   <div class="nav-buttons">
     <button mat-button [class.btn-nav-active]="seccionActiva === 'repartidores'" (click)="cambiarSeccion('repartidores')">

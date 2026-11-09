@@ -4,13 +4,18 @@
   align-items: center;
   min-height: 85vh;
   padding: 1rem;
+  /* Fondo con imagen y capa semitransparente para que el formulario destaque */
+  background: linear-gradient(rgba(241, 245, 249, 0.82), rgba(241, 245, 249, 0.88)),
+  url('/login-bg.jpg') center/cover no-repeat;
 }
 
 .login-card {
   width: 100%;
-  max-width: 400px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 420px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  background-color: #ffffff;
 }
 
 .login-card mat-card-header {
@@ -19,6 +24,15 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+}
+
+.login-header-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .full-width {
