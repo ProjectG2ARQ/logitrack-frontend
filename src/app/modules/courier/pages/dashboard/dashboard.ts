@@ -51,12 +51,7 @@ export class DashboardComponent implements OnInit {
         const enRuta = Array.isArray(res.enRuta) ? res.enRuta : [];
         const todos = [...pendientes, ...enRuta];
 
-        this.misEnvios = todos.filter(
-          (e) =>
-            e.repartidorId === this.perfil?.id ||
-            e.estado === 'PENDIENTE' ||
-            e.estado === 'EN_RUTA',
-        );
+        this.misEnvios = todos.filter((e) => e.repartidorId === this.perfil?.id);
         this.cargando = false;
       },
       error: (err) => {
