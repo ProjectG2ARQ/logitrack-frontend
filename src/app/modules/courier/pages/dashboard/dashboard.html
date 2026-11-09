@@ -19,6 +19,7 @@
     <mat-card-content style="margin-top: 1rem;">
       <div class="estado-flex">
         <strong>Mi Disponibilidad:</strong>
+        <!-- Vuelto a la normalidad: Activo es verde y dice Activo, Inactivo es rojo y dice Inactivo -->
         <span class="badge" [ngClass]="perfil?.estado === 'ACTIVO' ? 'badge-activo' : 'badge-inactivo'">
           {{ perfil?.estado || 'DESCONOCIDO' }}
         </span>
