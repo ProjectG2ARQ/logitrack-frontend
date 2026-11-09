@@ -2,7 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { switchMap } from 'rxjs';
-import { AdminService, Repartidor, Envio } from '../../services/admin.service';
+import { AdminService, Repartidor, Envio, Cliente } from '../../services/admin.service';
 import { AuthService } from '../../../../core/services/auth';
 
 @Component({
@@ -18,11 +18,12 @@ export class DashboardComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
 
-  seccionActiva: 'repartidores' | 'envios' = 'repartidores';
+  seccionActiva: 'repartidores' | 'envios' | 'clientes' = 'repartidores';
 
   adminEmail: string = '';
   repartidores: Repartidor[] = [];
   repartidoresActivos: Repartidor[] = [];
+  clientes: Cliente[] = [];
 
   enviosPendientes: Envio[] = [];
   envios: Envio[] = [];
@@ -40,7 +41,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     const seccionGuardada = sessionStorage.getItem('logitrack_admin_seccion') as
-      'repartidores' | 'envios';
+      'repartidores' | 'envios' | 'clientes';
     if (seccionGuardada) {
       this.seccionActiva = seccionGuardada;
     }
@@ -50,7 +51,7 @@ export class DashboardComponent implements OnInit {
     this.cargarDatos();
   }
 
-  cambiarSeccion(seccion: 'repartidores' | 'envios'): void {
+  cambiarSeccion(seccion: 'repartidores' | 'envios' | 'clientes'): void {
     this.seccionActiva = seccion;
     sessionStorage.setItem('logitrack_admin_seccion', seccion);
     this.cdr.markForCheck();
@@ -58,6 +59,7 @@ export class DashboardComponent implements OnInit {
 
   cargarDatos(): void {
     this.cargarRepartidores();
+    this.cargarClientes();
     this.cargarPendientes();
     this.filtrarEnvios(this.estadoSeleccionado);
   }
@@ -70,6 +72,16 @@ export class DashboardComponent implements OnInit {
         this.cdr.markForCheck();
       },
       error: () => this.snackBar.open('Error al cargar repartidores', 'Cerrar', { duration: 3000 }),
+    });
+  }
+
+  cargarClientes(): void {
+    this.adminService.obtenerClientes().subscribe({
+      next: (data) => {
+        this.clientes = data;
+        this.cdr.markForCheck();
+      },
+      error: () => this.snackBar.open('Error al cargar clientes', 'Cerrar', { duration: 3000 }),
     });
   }
 
@@ -99,12 +111,10 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  /// Resuelve el nombre del repartidor a partir de su ID
+  // Resuelve el nombre del repartidor a partir de su ID
   obtenerNombreRepartidor(repartidorId?: string): string {
     if (!repartidorId) return 'Sin asignar';
-    const rep = this.repartidores.find(
-      (r) => r.id?.toLowerCase() === repartidorId.toLowerCase()
-    );
+    const rep = this.repartidores.find((r) => r.id?.toLowerCase() === repartidorId.toLowerCase());
     return rep ? rep.nombre : `Asignado (ID: ${repartidorId.substring(0, 8)}...)`;
   }
 
@@ -178,6 +188,21 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         const msg = err.error?.message || 'Error al dar de baja al repartidor';
+        this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  eliminarCliente(cli: Cliente): void {
+    if (!cli.id) return;
+
+    this.adminService.eliminarCliente(cli.id).subscribe({
+      next: () => {
+        this.snackBar.open(`Cliente ${cli.nombre} eliminado`, 'Cerrar', { duration: 3000 });
+        this.cargarClientes();
+      },
+      error: (err) => {
+        const msg = err.error?.message || 'Error al eliminar cliente';
         this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
       },
     });

@@ -5,6 +5,9 @@
     <button mat-button [class.btn-nav-active]="seccionActiva === 'repartidores'" (click)="cambiarSeccion('repartidores')">
       <mat-icon>badge</mat-icon> Repartidores
     </button>
+    <button mat-button [class.btn-nav-active]="seccionActiva === 'clientes'" (click)="cambiarSeccion('clientes')">
+      <mat-icon>people</mat-icon> Clientes
+    </button>
     <button mat-button [class.btn-nav-active]="seccionActiva === 'envios'" (click)="cambiarSeccion('envios')">
       <mat-icon>local_shipping</mat-icon> Envíos y Logística
     </button>
@@ -101,7 +104,7 @@
               <button mat-stroked-button [color]="rep.estado === 'ACTIVO' ? 'warn' : 'primary'" (click)="toggleEstadoRepartidor(rep)">
                 {{ rep.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }}
               </button>
-              <button mat-icon-button color="warn" title="Eliminar (Soft Delete)" (click)="eliminarRepartidor(rep)">
+              <button mat-icon-button color="warn" title="Eliminar Repartidor (SD)" (click)="eliminarRepartidor(rep)">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>
@@ -112,7 +115,52 @@
     </mat-card>
   </ng-container>
 
-  <!-- SECCIÓN 2: ENVÍOS Y LOGÍSTICA -->
+  <!-- SECCIÓN 2: CLIENTES -->
+  <ng-container *ngIf="seccionActiva === 'clientes'">
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <mat-card-title>Directorio de Clientes Registrados</mat-card-title>
+        <mat-card-subtitle>Monitoreo de cuentas de cliente y gestión de bajas</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="clientes.length === 0" class="empty-state">
+          No hay clientes registrados en el sistema.
+        </div>
+        <table *ngIf="clientes.length > 0" class="data-table">
+          <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th>ID de Cliente</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let cli of clientes">
+            <td><strong>{{ cli.nombre }}</strong></td>
+            <td>{{ cli.email }}</td>
+            <td>{{ cli.telefono }}</td>
+            <td>
+              <span [class.badge-activo]="cli.estado === 'ACTIVO'" [class.badge-inactivo]="cli.estado === 'INACTIVO'">
+                {{ cli.estado || 'ACTIVO' }}
+              </span>
+            </td>
+            <td>{{ cli.id | slice:0:8 }}...</td>
+            <td>
+              <button mat-icon-button color="warn" title="Eliminar Cliente (SD)" (click)="eliminarCliente(cli)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  </ng-container>
+
+  <!-- SECCIÓN 3: ENVÍOS Y LOGÍSTICA -->
   <ng-container *ngIf="seccionActiva === 'envios'">
     <!-- Asignar Envíos Pendientes -->
     <mat-card class="dashboard-card">

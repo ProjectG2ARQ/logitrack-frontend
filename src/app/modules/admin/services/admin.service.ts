@@ -10,6 +10,17 @@ export interface Repartidor {
   userId?: number;
 }
 
+export interface Cliente {
+  id: string;
+  nombre: string;
+  email: string;
+  telefono: string;
+  estado?: 'ACTIVO' | 'INACTIVO' | 'ELIMINADO';
+  userId?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Envio {
   id: string;
   codigoSeguimiento: string;
@@ -36,8 +47,10 @@ export class AdminService {
   private http = inject(HttpClient);
 
   private readonly AUTH_URL = 'http://localhost:8066/applications/api-security/api/v1/auth';
-  private readonly COURIER_URL = 'http://localhost:8066/applications/api-courier/api/v1/repartidores';
+  private readonly COURIER_URL =
+    'http://localhost:8066/applications/api-courier/api/v1/repartidores';
   private readonly SHIPMENT_URL = 'http://localhost:8066/applications/api-shipment/api/v1/envios';
+  private readonly CLIENTE_URL = 'http://localhost:8066/applications/api-shipment/api/v1/clientes';
 
   // 1. Primer disparo: registrar credenciales en security-service
   registrarUsuarioAuth(payload: {
@@ -48,7 +61,7 @@ export class AdminService {
     return this.http.post<RegistroAuthResponse>(`${this.AUTH_URL}/register`, payload);
   }
 
-  // 2. Segundo disparo: registrar perfil  con userId en courier-service
+  // 2. Segundo disparo: registrar perfil con userId en courier-service
   registrarRepartidor(repartidor: Repartidor): Observable<Repartidor> {
     return this.http.post<Repartidor>(this.COURIER_URL, repartidor);
   }
@@ -74,6 +87,15 @@ export class AdminService {
 
   eliminarRepartidor(id: string): Observable<void> {
     return this.http.delete<void>(`${this.COURIER_URL}/${id}`);
+  }
+
+  // Clientes
+  obtenerClientes(): Observable<Cliente[]> {
+    return this.http.get<Cliente[]>(this.CLIENTE_URL);
+  }
+
+  eliminarCliente(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.CLIENTE_URL}/${id}`);
   }
 
   // Envios y Asignacion
