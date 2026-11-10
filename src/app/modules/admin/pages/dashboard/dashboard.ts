@@ -111,7 +111,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // Resuelve el nombre del repartidor a partir de su ID
   obtenerNombreRepartidor(repartidorId?: string): string {
     if (!repartidorId) return 'Sin asignar';
     const rep = this.repartidores.find((r) => r.id?.toLowerCase() === repartidorId.toLowerCase());
